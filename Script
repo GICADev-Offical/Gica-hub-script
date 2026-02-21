@@ -1,9 +1,6 @@
 -- SERVICES
-local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local Lighting = game:GetService("Lighting")
-
-local player = Players.LocalPlayer
 
 --------------------------------------------------
 -- DAILY KEY
@@ -11,43 +8,28 @@ local player = Players.LocalPlayer
 
 local function generateDailyKey()
 	local date = os.date("*t")
-	local day = string.format("%02d", date.day)
-	local month = string.format("%02d", date.month)
-	local year = tostring(date.year):sub(3,4)
-
-	return "PAID_"..day.."_"..month.."_"..year.."_KEY"
+	return "PAID_"..
+	string.format("%02d", date.day).."_"..
+	string.format("%02d", date.month).."_"..
+	tostring(date.year):sub(3,4)..
+	"_KEY"
 end
 
 local VALID_KEY = generateDailyKey()
 
 --------------------------------------------------
--- UI
---------------------------------------------------
-
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = game.CoreGui
-
-local Main = Instance.new("Frame", ScreenGui)
-Main.Size = UDim2.new(0,500,0,400)
-Main.Position = UDim2.new(0.5,-250,0.5,-200)
-Main.BackgroundColor3 = Color3.fromRGB(20,0,40)
-Main.Active = true
-Main.Draggable = true
-
-Instance.new("UICorner", Main).CornerRadius = UDim.new(0,20)
-
---------------------------------------------------
--- NOTIFY
+-- NOTIFY SYSTEM
 --------------------------------------------------
 
 local function notify(text)
-	local n = Instance.new("TextLabel", ScreenGui)
+	local n = Instance.new("TextLabel")
+	n.Parent = game.CoreGui
 	n.Size = UDim2.new(0,300,0,50)
 	n.Position = UDim2.new(1,0,0.8,0)
 	n.Text = text
+	n.TextScaled = true
 	n.BackgroundColor3 = Color3.fromRGB(60,0,120)
 	n.TextColor3 = Color3.new(1,1,1)
-	n.TextScaled = true
 
 	TweenService:Create(n,TweenInfo.new(0.5),{
 		Position = UDim2.new(0.7,0,0.8,0)
@@ -58,176 +40,180 @@ local function notify(text)
 end
 
 --------------------------------------------------
--- TAB SYSTEM
+-- ================= LOGIN UI =================
 --------------------------------------------------
 
-local TabFrame = Instance.new("Frame", Main)
-TabFrame.Size = UDim2.new(0,150,1,0)
-TabFrame.BackgroundColor3 = Color3.fromRGB(30,0,60)
-TabFrame.Visible = false -- 🔥 FIX
+local LoginGui = Instance.new("ScreenGui")
+LoginGui.Parent = game.CoreGui
 
-Instance.new("UICorner", TabFrame)
+local LoginFrame = Instance.new("Frame", LoginGui)
+LoginFrame.Size = UDim2.new(0,400,0,250)
+LoginFrame.Position = UDim2.new(0.5,-200,0.5,-125)
+LoginFrame.BackgroundColor3 = Color3.fromRGB(20,0,40)
+LoginFrame.Active = true
+LoginFrame.Draggable = true
 
-local ContentFrame = Instance.new("Frame", Main)
-ContentFrame.Size = UDim2.new(1,-160,1,-20)
-ContentFrame.Position = UDim2.new(0,160,0,10)
-ContentFrame.BackgroundTransparency = 1
-ContentFrame.Visible = false -- 🔥 FIX
+Instance.new("UICorner", LoginFrame).CornerRadius = UDim.new(0,20)
 
-local function clearTabs()
-	for _,v in pairs(ContentFrame:GetChildren()) do
-		v:Destroy()
-	end
-end
-
-local function createTabButton(name,callback)
-	local btn = Instance.new("TextButton", TabFrame)
-	btn.Size = UDim2.new(1,0,0,50)
-	btn.Text = name
-	btn.TextScaled = true
-	btn.BackgroundColor3 = Color3.fromRGB(80,0,150)
-
-	btn.MouseButton1Click:Connect(function()
-		clearTabs()
-		callback()
-	end)
-end
-
---------------------------------------------------
--- TABS
---------------------------------------------------
-
-createTabButton("SHADOW",function()
-	local btn = Instance.new("TextButton", ContentFrame)
-	btn.Size = UDim2.new(0,250,0,50)
-	btn.Position = UDim2.new(0.1,0,0.1,0)
-	btn.Text = "Disable Shadows"
-	btn.TextScaled = true
-
-	btn.MouseButton1Click:Connect(function()
-		Lighting.GlobalShadows = false
-		notify("Shadows Disabled")
-	end)
-end)
-
-createTabButton("FOG",function()
-	local btn = Instance.new("TextButton", ContentFrame)
-	btn.Size = UDim2.new(0,250,0,50)
-	btn.Position = UDim2.new(0.1,0,0.1,0)
-	btn.Text = "Disable Fog"
-	btn.TextScaled = true
-
-	btn.MouseButton1Click:Connect(function()
-		Lighting.FogStart = 0
-		Lighting.FogEnd = 100000
-		notify("Fog Disabled")
-	end)
-end)
-
-createTabButton("FPS",function()
-
-	local shadowBtn = Instance.new("TextButton", ContentFrame)
-	shadowBtn.Size = UDim2.new(0,250,0,40)
-	shadowBtn.Position = UDim2.new(0.1,0,0.1,0)
-	shadowBtn.Text = "Disable Shadows"
-	shadowBtn.TextScaled = true
-
-	shadowBtn.MouseButton1Click:Connect(function()
-		Lighting.GlobalShadows = false
-		notify("Shadows Disabled")
-	end)
-
-	local fogBtn = Instance.new("TextButton", ContentFrame)
-	fogBtn.Size = UDim2.new(0,250,0,40)
-	fogBtn.Position = UDim2.new(0.1,0,0.2,0)
-	fogBtn.Text = "Disable Fog"
-	fogBtn.TextScaled = true
-
-	fogBtn.MouseButton1Click:Connect(function()
-		Lighting.FogStart = 0
-		Lighting.FogEnd = 100000
-		notify("Fog Disabled")
-	end)
-
-	local texBtn = Instance.new("TextButton", ContentFrame)
-	texBtn.Size = UDim2.new(0,250,0,40)
-	texBtn.Position = UDim2.new(0.1,0,0.3,0)
-	texBtn.Text = "Remove Textures"
-	texBtn.TextScaled = true
-
-	texBtn.MouseButton1Click:Connect(function()
-		for _,v in pairs(game:GetDescendants()) do
-			if v:IsA("Texture") or v:IsA("Decal") then
-				v:Destroy()
-			end
-		end
-		notify("Textures Removed")
-	end)
-
-end)
-
-createTabButton("KEY",function()
-
-	local btn = Instance.new("TextButton", ContentFrame)
-	btn.Size = UDim2.new(0,250,0,50)
-	btn.Position = UDim2.new(0.1,0,0.1,0)
-	btn.Text = "GET KEY"
-	btn.TextScaled = true
-	btn.BackgroundColor3 = Color3.fromRGB(150,0,255)
-
-	btn.MouseButton1Click:Connect(function()
-
-		local url = "https://work.ink/2k4r/gica-hub-key-system"
-
-		pcall(function()
-			if syn and syn.open_url then
-				syn.open_url(url)
-			elseif openurl then
-				openurl(url)
-			else
-				setclipboard(url)
-			end
-		end)
-
-		setclipboard(url)
-		notify("Opened / Copied ✔")
-	end)
-end)
-
---------------------------------------------------
--- KEY LOGIN
---------------------------------------------------
-
-local KeyBox = Instance.new("TextBox", Main)
+-- KEY BOX
+local KeyBox = Instance.new("TextBox", LoginFrame)
 KeyBox.Size = UDim2.new(0,250,0,40)
-KeyBox.Position = UDim2.new(0.5,-125,0.7,0)
+KeyBox.Position = UDim2.new(0.5,-125,0.3,0)
 KeyBox.PlaceholderText = "ENTER KEY"
 KeyBox.TextScaled = true
 
 Instance.new("UICorner", KeyBox)
 
-local UnlockBtn = Instance.new("TextButton", Main)
+-- UNLOCK BUTTON
+local UnlockBtn = Instance.new("TextButton", LoginFrame)
 UnlockBtn.Size = UDim2.new(0,250,0,40)
-UnlockBtn.Position = UDim2.new(0.5,-125,0.8,0)
+UnlockBtn.Position = UDim2.new(0.5,-125,0.5,0)
 UnlockBtn.Text = "UNLOCK"
 UnlockBtn.TextScaled = true
 UnlockBtn.BackgroundColor3 = Color3.fromRGB(150,0,255)
 
 Instance.new("UICorner", UnlockBtn)
 
+-- GET KEY BUTTON (BOTTOM RIGHT)
+local GetKeyBtn = Instance.new("TextButton", LoginFrame)
+GetKeyBtn.Size = UDim2.new(0,120,0,35)
+GetKeyBtn.Position = UDim2.new(1,-130,1,-45)
+GetKeyBtn.Text = "GET KEY"
+GetKeyBtn.TextScaled = true
+GetKeyBtn.BackgroundColor3 = Color3.fromRGB(150,0,255)
+
+Instance.new("UICorner", GetKeyBtn).CornerRadius = UDim.new(0,10)
+
+GetKeyBtn.MouseButton1Click:Connect(function()
+
+	local url = "https://work.ink/2k4r/gica-hub-key-system"
+
+	pcall(function()
+		if syn and syn.open_url then
+			syn.open_url(url)
+		elseif openurl then
+			openurl(url)
+		else
+			setclipboard(url)
+		end
+	end)
+
+	setclipboard(url)
+end)
+
+--------------------------------------------------
+-- ================= MAIN UI =================
+--------------------------------------------------
+
+function CreateMainUI()
+
+	local MainGui = Instance.new("ScreenGui")
+	MainGui.Parent = game.CoreGui
+
+	local Main = Instance.new("Frame", MainGui)
+	Main.Size = UDim2.new(0,500,0,400)
+	Main.Position = UDim2.new(0.5,-250,0.5,-200)
+	Main.BackgroundColor3 = Color3.fromRGB(20,0,40)
+	Main.Active = true
+	Main.Draggable = true
+
+	Instance.new("UICorner", Main).CornerRadius = UDim.new(0,20)
+
+	--------------------------------------------------
+	-- TAB SYSTEM
+	--------------------------------------------------
+
+	local TabFrame = Instance.new("Frame", Main)
+	TabFrame.Size = UDim2.new(0,150,1,0)
+	TabFrame.BackgroundColor3 = Color3.fromRGB(30,0,60)
+
+	local ContentFrame = Instance.new("Frame", Main)
+	ContentFrame.Size = UDim2.new(1,-160,1,-20)
+	ContentFrame.Position = UDim2.new(0,160,0,10)
+	ContentFrame.BackgroundTransparency = 1
+
+	local function clear()
+		for _,v in pairs(ContentFrame:GetChildren()) do
+			v:Destroy()
+		end
+	end
+
+	local function createTab(name,func)
+		local btn = Instance.new("TextButton", TabFrame)
+		btn.Size = UDim2.new(1,0,0,50)
+		btn.Text = name
+		btn.TextScaled = true
+		btn.BackgroundColor3 = Color3.fromRGB(80,0,150)
+
+		btn.MouseButton1Click:Connect(function()
+			clear()
+			func()
+		end)
+	end
+
+	--------------------------------------------------
+	-- TABS
+	--------------------------------------------------
+
+	createTab("SHADOW",function()
+		local btn = Instance.new("TextButton", ContentFrame)
+		btn.Size = UDim2.new(0,250,0,50)
+		btn.Text = "Disable Shadows"
+		btn.TextScaled = true
+
+		btn.MouseButton1Click:Connect(function()
+			Lighting.GlobalShadows = false
+			notify("Shadows Disabled")
+		end)
+	end)
+
+	createTab("FOG",function()
+		local btn = Instance.new("TextButton", ContentFrame)
+		btn.Size = UDim2.new(0,250,0,50)
+		btn.Text = "Disable Fog"
+		btn.TextScaled = true
+
+		btn.MouseButton1Click:Connect(function()
+			Lighting.FogStart = 0
+			Lighting.FogEnd = 100000
+			notify("Fog Disabled")
+		end)
+	end)
+
+	createTab("FPS",function()
+		local btn = Instance.new("TextButton", ContentFrame)
+		btn.Size = UDim2.new(0,250,0,50)
+		btn.Text = "Remove Textures"
+		btn.TextScaled = true
+
+		btn.MouseButton1Click:Connect(function()
+			for _,v in pairs(game:GetDescendants()) do
+				if v:IsA("Texture") or v:IsA("Decal") then
+					v:Destroy()
+				end
+			end
+			notify("Textures Removed")
+		end)
+	end)
+
+end
+
+--------------------------------------------------
+-- LOGIN CHECK
+--------------------------------------------------
+
 UnlockBtn.MouseButton1Click:Connect(function()
 
 	if KeyBox.Text == VALID_KEY then
+
 		notify("ACCESS GRANTED ✔")
 		task.wait(1)
 
-		KeyBox:Destroy()
-		UnlockBtn:Destroy()
-
-		TabFrame.Visible = true
-		ContentFrame.Visible = true -- 🔥 FIX
+		LoginGui:Destroy()
+		CreateMainUI()
 
 	else
 		notify("INVALID KEY ❌")
 	end
+
 end)
