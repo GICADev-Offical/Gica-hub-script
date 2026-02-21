@@ -1,27 +1,28 @@
 -- SERVICES
 local TweenService = game:GetService("TweenService")
 local Lighting = game:GetService("Lighting")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
 
 --------------------------------------------------
 -- DAILY KEY
 --------------------------------------------------
 
 local function generateDailyKey()
-	local date = os.date("*t")
-	return "PAID_"..
-	string.format("%02d", date.day).."_"..
-	string.format("%02d", date.month).."_"..
-	tostring(date.year):sub(3,4)..
-	"_KEY"
+	local date = os.date("t")
+	return "PAID_".. string.format("%02d", date.day)..""..
+		string.format("%02d", date.month).."*"..
+		tostring(date.year):sub(3,4).. "_KEY"
 end
 
 local VALID_KEY = generateDailyKey()
 
 --------------------------------------------------
--- NOTIFY SYSTEM
+-- NOTIFY
 --------------------------------------------------
 
 local function notify(text)
+
 	local n = Instance.new("TextLabel")
 	n.Parent = game.CoreGui
 	n.Size = UDim2.new(0,300,0,50)
@@ -40,7 +41,7 @@ local function notify(text)
 end
 
 --------------------------------------------------
--- ================= LOGIN UI =================
+-- LOGIN UI
 --------------------------------------------------
 
 local LoginGui = Instance.new("ScreenGui")
@@ -61,7 +62,6 @@ KeyBox.Size = UDim2.new(0,250,0,40)
 KeyBox.Position = UDim2.new(0.5,-125,0.3,0)
 KeyBox.PlaceholderText = "ENTER KEY"
 KeyBox.TextScaled = true
-
 Instance.new("UICorner", KeyBox)
 
 -- UNLOCK BUTTON
@@ -71,10 +71,12 @@ UnlockBtn.Position = UDim2.new(0.5,-125,0.5,0)
 UnlockBtn.Text = "UNLOCK"
 UnlockBtn.TextScaled = true
 UnlockBtn.BackgroundColor3 = Color3.fromRGB(150,0,255)
-
 Instance.new("UICorner", UnlockBtn)
 
--- GET KEY BUTTON (BOTTOM RIGHT)
+--------------------------------------------------
+-- GET KEY BUTTON (BACK IN)
+--------------------------------------------------
+
 local GetKeyBtn = Instance.new("TextButton", LoginFrame)
 GetKeyBtn.Size = UDim2.new(0,120,0,35)
 GetKeyBtn.Position = UDim2.new(1,-130,1,-45)
@@ -102,7 +104,7 @@ GetKeyBtn.MouseButton1Click:Connect(function()
 end)
 
 --------------------------------------------------
--- ================= MAIN UI =================
+-- MAIN UI
 --------------------------------------------------
 
 function CreateMainUI()
@@ -120,110 +122,119 @@ function CreateMainUI()
 	Instance.new("UICorner", Main).CornerRadius = UDim.new(0,20)
 
 	--------------------------------------------------
-	-- createTab("FPS",function()
+	-- TAB SYSTEM
+	--------------------------------------------------
 
-	-- REMOVE TEXTURES
-	local btn1 = Instance.new("TextButton", ContentFrame)
-	btn1.Size = UDim2.new(0,250,0,50)
-	btn1.Position = UDim2.new(0,0,0,0)
-	btn1.Text = "Remove Textures"
-	btn1.TextScaled = true
+	local TabFrame = Instance.new("Frame", Main)
+	TabFrame.Size = UDim2.new(0,150,1,0)
+	TabFrame.BackgroundColor3 = Color3.fromRGB(30,0,60)
 
-	btn1.MouseButton1Click:Connect(function()
-		for _,v in pairs(game:GetDescendants()) do
-			if v:IsA("Texture") or v:IsA("Decal") then
-				v:Destroy()
-			end
+	local ContentFrame = Instance.new("Frame", Main)
+	ContentFrame.Size = UDim2.new(1,-160,1,-20)
+	ContentFrame.Position = UDim2.new(0,160,0,10)
+	ContentFrame.BackgroundTransparency = 1
+
+	local function clear()
+		for _,v in pairs(ContentFrame:GetChildren()) do
+			v:Destroy()
 		end
-		notify("Textures Removed")
+	end
+
+	local function createTab(name,func)
+
+		local btn = Instance.new("TextButton", TabFrame)
+		btn.Size = UDim2.new(1,0,0,50)
+		btn.Text = name
+		btn.TextScaled = true
+		btn.BackgroundColor3 = Color3.fromRGB(80,0,150)
+
+		btn.MouseButton1Click:Connect(function()
+			clear()
+			func()
+		end)
+	end
+
+	--------------------------------------------------
+	-- SHADOW TAB
+	--------------------------------------------------
+
+	createTab("SHADOW",function()
+		local btn = Instance.new("TextButton", ContentFrame)
+		btn.Size = UDim2.new(0,250,0,50)
+		btn.Text = "Disable Shadows"
+		btn.TextScaled = true
+
+		btn.MouseButton1Click:Connect(function()
+			Lighting.GlobalShadows = false
+			notify("Shadows Disabled")
+		end)
 	end)
 
-	-- REMOVE FOG
-	local btn2 = Instance.new("TextButton", ContentFrame)
-	btn2.Size = UDim2.new(0,250,0,50)
-	btn2.Position = UDim2.new(0,0,0,60)
-	btn2.Text = "Remove Fog"
-	btn2.TextScaled = true
+	--------------------------------------------------
+	-- FOG TAB
+	--------------------------------------------------
 
-	btn2.MouseButton1Click:Connect(function()
-		Lighting.FogStart = 0
-		Lighting.FogEnd = 100000
-		notify("Fog Removed")
+	createTab("FOG",function()
+		local btn = Instance.new("TextButton", ContentFrame)
+		btn.Size = UDim2.new(0,250,0,50)
+		btn.Text = "Disable Fog"
+		btn.TextScaled = true
+
+		btn.MouseButton1Click:Connect(function()
+			Lighting.FogStart = 0
+			Lighting.FogEnd = 100000
+			notify("Fog Disabled")
+		end)
 	end)
 
-	-- REMOVE SHADOWS
-	local btn3 = Instance.new("TextButton", ContentFrame)
-	btn3.Size = UDim2.new(0,250,0,50)
-	btn3.Position = UDim2.new(0,0,0,120)
-	btn3.Text = "Remove Shadows"
-	btn3.TextScaled = true
+	--------------------------------------------------
+	-- ESP TAB
+	--------------------------------------------------
 
-	btn3.MouseButton1Click:Connect(function()
-		Lighting.GlobalShadows = false
-		notify("Shadows Disabled")
-	end)
+	createTab("ESP",function()
 
-	-- RESET EVERYTHING
-	local btn4 = Instance.new("TextButton", ContentFrame)
-	btn4.Size = UDim2.new(0,250,0,50)
-	btn4.Position = UDim2.new(0,0,0,180)
-	btn4.Text = "Reset All"
-	btn4.TextScaled = true
-	btn4.BackgroundColor3 = Color3.fromRGB(200,0,0)
+		local espEnabled = false
+		local highlights = {}
 
-	btn4.MouseButton1Click:Connect(function()
+		local toggle = Instance.new("TextButton", ContentFrame)
+		toggle.Size = UDim2.new(0,250,0,50)
+		toggle.Text = "ESP OFF"
+		toggle.TextScaled = true
 
-		-- Reset Lighting
-		Lighting.GlobalShadows = true
-		Lighting.FogStart = 0
-		Lighting.FogEnd = 5000
+		toggle.MouseButton1Click:Connect(function()
 
-		-- Restore textures (Roblox kann gelöschte nicht 100% zurückbringen)
-		notify("Reset Applied")
-	end)
+			espEnabled = not espEnabled
 
-end)
-createTab("HIGHLIGHT",function()
+			if espEnabled then
+				toggle.Text = "ESP ON"
+				toggle.BackgroundColor3 = Color3.fromRGB(0,150,0)
+			else
+				toggle.Text = "ESP OFF"
+				toggle.BackgroundColor3 = Color3.fromRGB(150,0,0)
+			end
 
-	local highlightEnabled = false
+			for _,h in pairs(highlights) do
+				if h then h:Destroy() end
+			end
 
-	local btn = Instance.new("TextButton", ContentFrame)
-	btn.Size = UDim2.new(0,250,0,50)
-	btn.Text = "Toggle Player Highlight"
-	btn.TextScaled = true
+			highlights = {}
 
-	btn.MouseButton1Click:Connect(function()
+			for _,plr in pairs(Players:GetPlayers()) do
+				if plr ~= player and plr.Character and espEnabled then
 
-		highlightEnabled = not highlightEnabled
+					local highlight = Instance.new("Highlight")
+					highlight.FillColor = Color3.fromRGB(255,0,0)
+					highlight.FillTransparency = 0.3
+					highlight.OutlineColor = Color3.fromRGB(255,255,255)
+					highlight.Parent = plr.Character
 
-		for _,player in pairs(game.Players:GetPlayers()) do
-			if player.Character then
-
-				if highlightEnabled then
-
-					local hl = Instance.new("Highlight")
-					hl.Name = "HubHighlight"
-					hl.Parent = player.Character
-					hl.FillColor = Color3.fromRGB(0,0,255)
-					hl.OutlineColor = Color3.fromRGB(0,0,255)
-
-				else
-
-					local existing = player.Character:FindFirstChild("HubHighlight")
-					if existing then
-						existing:Destroy()
-					end
-
+					table.insert(highlights, highlight)
 				end
-
 			end
-		end
-
-		notify("Highlight Toggled")
-
+		end)
 	end)
+end
 
-end)
 --------------------------------------------------
 -- LOGIN CHECK
 --------------------------------------------------
@@ -231,15 +242,11 @@ end)
 UnlockBtn.MouseButton1Click:Connect(function()
 
 	if KeyBox.Text == VALID_KEY then
-
 		notify("ACCESS GRANTED ✔")
 		task.wait(1)
-
 		LoginGui:Destroy()
 		CreateMainUI()
-
 	else
 		notify("INVALID KEY ❌")
 	end
-
 end)
