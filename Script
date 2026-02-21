@@ -183,6 +183,47 @@ function CreateMainUI()
 	end)
 
 end)
+createTab("HIGHLIGHT",function()
+
+	local highlightEnabled = false
+
+	local btn = Instance.new("TextButton", ContentFrame)
+	btn.Size = UDim2.new(0,250,0,50)
+	btn.Text = "Toggle Player Highlight"
+	btn.TextScaled = true
+
+	btn.MouseButton1Click:Connect(function()
+
+		highlightEnabled = not highlightEnabled
+
+		for _,player in pairs(game.Players:GetPlayers()) do
+			if player.Character then
+
+				if highlightEnabled then
+
+					local hl = Instance.new("Highlight")
+					hl.Name = "HubHighlight"
+					hl.Parent = player.Character
+					hl.FillColor = Color3.fromRGB(0,0,255)
+					hl.OutlineColor = Color3.fromRGB(0,0,255)
+
+				else
+
+					local existing = player.Character:FindFirstChild("HubHighlight")
+					if existing then
+						existing:Destroy()
+					end
+
+				end
+
+			end
+		end
+
+		notify("Highlight Toggled")
+
+	end)
+
+end)
 --------------------------------------------------
 -- LOGIN CHECK
 --------------------------------------------------
