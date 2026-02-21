@@ -120,84 +120,69 @@ function CreateMainUI()
 	Instance.new("UICorner", Main).CornerRadius = UDim.new(0,20)
 
 	--------------------------------------------------
-	-- TAB SYSTEM
-	--------------------------------------------------
+	-- createTab("FPS",function()
 
-	local TabFrame = Instance.new("Frame", Main)
-	TabFrame.Size = UDim2.new(0,150,1,0)
-	TabFrame.BackgroundColor3 = Color3.fromRGB(30,0,60)
+	-- REMOVE TEXTURES
+	local btn1 = Instance.new("TextButton", ContentFrame)
+	btn1.Size = UDim2.new(0,250,0,50)
+	btn1.Position = UDim2.new(0,0,0,0)
+	btn1.Text = "Remove Textures"
+	btn1.TextScaled = true
 
-	local ContentFrame = Instance.new("Frame", Main)
-	ContentFrame.Size = UDim2.new(1,-160,1,-20)
-	ContentFrame.Position = UDim2.new(0,160,0,10)
-	ContentFrame.BackgroundTransparency = 1
-
-	local function clear()
-		for _,v in pairs(ContentFrame:GetChildren()) do
-			v:Destroy()
-		end
-	end
-
-	local function createTab(name,func)
-		local btn = Instance.new("TextButton", TabFrame)
-		btn.Size = UDim2.new(1,0,0,50)
-		btn.Text = name
-		btn.TextScaled = true
-		btn.BackgroundColor3 = Color3.fromRGB(80,0,150)
-
-		btn.MouseButton1Click:Connect(function()
-			clear()
-			func()
-		end)
-	end
-
-	--------------------------------------------------
-	-- TABS
-	--------------------------------------------------
-
-	createTab("SHADOW",function()
-		local btn = Instance.new("TextButton", ContentFrame)
-		btn.Size = UDim2.new(0,250,0,50)
-		btn.Text = "Disable Shadows"
-		btn.TextScaled = true
-
-		btn.MouseButton1Click:Connect(function()
-			Lighting.GlobalShadows = false
-			notify("Shadows Disabled")
-		end)
-	end)
-
-	createTab("FOG",function()
-		local btn = Instance.new("TextButton", ContentFrame)
-		btn.Size = UDim2.new(0,250,0,50)
-		btn.Text = "Disable Fog"
-		btn.TextScaled = true
-
-		btn.MouseButton1Click:Connect(function()
-			Lighting.FogStart = 0
-			Lighting.FogEnd = 100000
-			notify("Fog Disabled")
-		end)
-	end)
-
-	createTab("FPS",function()
-		local btn = Instance.new("TextButton", ContentFrame)
-		btn.Size = UDim2.new(0,250,0,50)
-		btn.Text = "Remove Textures"
-		btn.TextScaled = true
-
-		btn.MouseButton1Click:Connect(function()
-			for _,v in pairs(game:GetDescendants()) do
-				if v:IsA("Texture") or v:IsA("Decal") then
-					v:Destroy()
-				end
+	btn1.MouseButton1Click:Connect(function()
+		for _,v in pairs(game:GetDescendants()) do
+			if v:IsA("Texture") or v:IsA("Decal") then
+				v:Destroy()
 			end
-			notify("Textures Removed")
-		end)
+		end
+		notify("Textures Removed")
 	end)
 
-end
+	-- REMOVE FOG
+	local btn2 = Instance.new("TextButton", ContentFrame)
+	btn2.Size = UDim2.new(0,250,0,50)
+	btn2.Position = UDim2.new(0,0,0,60)
+	btn2.Text = "Remove Fog"
+	btn2.TextScaled = true
 
+	btn2.MouseButton1Click:Connect(function()
+		Lighting.FogStart = 0
+		Lighting.FogEnd = 100000
+		notify("Fog Removed")
+	end)
+
+	-- REMOVE SHADOWS
+	local btn3 = Instance.new("TextButton", ContentFrame)
+	btn3.Size = UDim2.new(0,250,0,50)
+	btn3.Position = UDim2.new(0,0,0,120)
+	btn3.Text = "Remove Shadows"
+	btn3.TextScaled = true
+
+	btn3.MouseButton1Click:Connect(function()
+		Lighting.GlobalShadows = false
+		notify("Shadows Disabled")
+	end)
+
+	-- RESET EVERYTHING
+	local btn4 = Instance.new("TextButton", ContentFrame)
+	btn4.Size = UDim2.new(0,250,0,50)
+	btn4.Position = UDim2.new(0,0,0,180)
+	btn4.Text = "Reset All"
+	btn4.TextScaled = true
+	btn4.BackgroundColor3 = Color3.fromRGB(200,0,0)
+
+	btn4.MouseButton1Click:Connect(function()
+
+		-- Reset Lighting
+		Lighting.GlobalShadows = true
+		Lighting.FogStart = 0
+		Lighting.FogEnd = 5000
+
+		-- Restore textures (Roblox kann gelöschte nicht 100% zurückbringen)
+		notify("Reset Applied")
+	end)
+
+end)
 --------------------------------------------------
 -- LOGIN CHECK
 --------------------------------------------------
